@@ -1,0 +1,11 @@
+{
+    "id": "binjuhor/momo",
+    "name": "MoMo Payment Gateway",
+    "namespace": "Binjuhor\\MoMo\\",
+    "provider": "Binjuhor\\MoMo\\Providers\\MoMoServiceProvider",
+    "author": "Binjuhor from XDevLabs Team",
+    "url": "https://binjuhor.com",
+    "version": "0.0.1",
+    "description": "MoMo payment gateway integration",
+    "require": ["payment"]
+}
