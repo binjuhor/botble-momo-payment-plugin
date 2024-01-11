@@ -8,12 +8,28 @@ use Exception;
 
 class MoMoPaymentService
 {
+    protected $partnerCode;
+    protected $accessKey;
+    protected $secretKey;
+
+    public function __construct()
+    {
+        $this->partnerCode = setting('momo_partner_code');
+        $this->accessKey = setting('momo_access_key');
+        $this->secretKey = setting('momo_secret_key');
+    }
+
     public function makePayment(array $data)
     {
-        $endpoint = setting('payment_momo_mode') == 0 ? 'https://test-payment.momo.vn/v2/gateway/api/create' : 'https://payment.momo.vn/v2/gateway/api/create';
-        $partnerCode = setting('momo_partner_code');
-        $accessKey = setting('momo_access_key');
-        $secretKey = setting('momo_secret_key');
+        $momoUrl = config('plugins.momo.general.production');
+        if(setting('payment_momo_mode') == 0 ){
+            $momoUrl = config('plugins.momo.general.sandbox');
+        }
+
+        $endpoint = $momoUrl.'/v2/gateway/api/create';
+        $partnerCode = $this->partnerCode;
+        $accessKey = $this->accessKey;
+        $secretKey = $this->secretKey;
         $orderInfo = $data['description'];
         $amount = $data['amount'];
         $orderId = time() . "";
@@ -23,7 +39,6 @@ class MoMoPaymentService
         $requestId = time() . "";
         $requestType = "captureWallet";
 
-        //before sign HMAC SHA256 signature
         $rawHash = "accessKey=" . $accessKey . "&amount=" . $amount . "&extraData=" . $extraData . "&ipnUrl=" . $ipnUrl . "&orderId=" . $orderId . "&orderInfo=" . $orderInfo . "&partnerCode=" . $partnerCode . "&redirectUrl=" . $redirectUrl . "&requestId=" . $requestId . "&requestType=" . $requestType;
         $signature = hash_hmac("sha256", $rawHash, $secretKey);
 
@@ -90,8 +105,8 @@ class MoMoPaymentService
 
     public function getPaymentStatus($request): string
     {
-        $accessKey = setting('momo_access_key');
-        $secretKey = setting('momo_secret_key');
+        $accessKey = $this->accessKey;
+        $secretKey = $this->secretKey;
         $partnerCode = $request->partnerCode;
         $orderId = $request->orderId;
         $requestId = $request->requestId;
@@ -139,42 +154,17 @@ class MoMoPaymentService
      */
     public function afterPayment( $request ): array
     {
-        $accessKey = setting('momo_access_key');
-
-        $response = [];
-        try {
-            $partnerCode = $request->partnerCode;
-            $orderId = $request->orderId;
-            $requestId = $request->requestId;
-            $amount = $request->amount;
-            $orderInfo = $request->orderInfo;
-            $orderType = $request->orderType;
-            $transId = $request->transId;
-            $resultCode = $request->resultCode;
-            $message = $request->message;
-            $payType = $request->payType;
-            $responseTime = $request->responseTime;
-            $extraData = $request->extraData;
-            $m2signature = $request->signature;
-
-            $rawHash = "accessKey=" . $accessKey . "&amount=" . $amount . "&extraData=" . $extraData . "&message=" . $message . "&orderId=" . $orderId . "&orderInfo=" . $orderInfo .
-                "&orderType=" . $orderType . "&partnerCode=" . $partnerCode . "&payType=" . $payType . "&requestId=" . $requestId . "&responseTime=" . $responseTime .
-                "&resultCode=" . $resultCode . "&transId=" . $transId;
-
-            $partnerSignature = hash_hmac("sha256", $rawHash, 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa');
-
-            if ($m2signature == $partnerSignature) {
-                if ($resultCode == '0') {
-                    $response['message'] = 'Capture Payment Success';
-                } else {
-                    $response['message'] = $message;
-                }
-            } else {
+        $paymentStatus = $this->getPaymentStatus($request);
+        switch ($paymentStatus) {
+            case 'success':
+                $response['message'] = 'Capture Payment Success';
+                break;
+            case 'error':
+                $response['message'] = 'Capture Payment Error';
+                break;
+            case 'hacked':
                 $response['message'] = 'This transaction could be hacked, please check your signature and returned signature';
-            }
-
-        } catch (Exception $e) {
-            echo $response['message'] = $e;
+                break;
         }
 
         return $response;

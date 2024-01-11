@@ -13,6 +13,7 @@ class MoMoServiceProvider extends ServiceProvider
     {
         if (is_plugin_active('payment')) {
             $this->setNamespace('plugins/momo')
+                ->loadAndPublishConfigurations(['general'])
                 ->loadHelpers()
                 ->loadRoutes()
                 ->loadAndPublishViews()
