@@ -5,11 +5,9 @@ This plugin helps you integrate MoMo pay into Botble CMS eCommerce.
 ### Installation
 
 - Download & unzip the module
-- Copy & paste to `platform/plugins` folder
+- Copy & paste to `platform/plugins/momo` folder
 - Go to Admin Panel -> Plugins and activate the MoMo pay plugin.
 - Go to Admin Panel -> Settings -> Payment Gateways and config MoMo pay.
-- Go to Admin Panel -> Settings -> Payment Methods and config MoMo pay.
-- Go to Admin Panel -> Settings -> Payment Methods and config MoMo pay.
 
 
 ### License
