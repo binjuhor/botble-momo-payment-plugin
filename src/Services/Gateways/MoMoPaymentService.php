@@ -15,7 +15,7 @@ class MoMoPaymentService
         $accessKey = setting('momo_access_key');
         $secretKey = setting('momo_secret_key');
         $orderInfo = $data['description'];
-        $amount = $data['amount']; // chuyen sang du lieu kieu long
+        $amount = $data['amount'];
         $orderId = time() . "";
         $redirectUrl = $data['callback_url'];
         $ipnUrl = route('payments.momo.ipn');
@@ -42,7 +42,7 @@ class MoMoPaymentService
             'signature' => $signature);
 
         $result = $this->execPostRequest($endpoint, json_encode($data));
-        $jsonResult = json_decode($result, true);  // decode json
+        $jsonResult = json_decode($result, true);
 
         if($jsonResult['resultCode'] != 0) {
             die($jsonResult['message']);
@@ -68,7 +68,7 @@ class MoMoPaymentService
         return $result;
     }
 
-    public function storedData(array $data)
+    public function storedData(array $data): void
     {
         $chargeId = $data['orderId'];
         $order = Order::find($data['extraData']);
@@ -106,7 +106,6 @@ class MoMoPaymentService
         $extraData = $request->extraData;
         $m2signature = $request->signature; //MoMo signate
 
-        //Checksum
         $rawHash = "accessKey=" . $accessKey . "&amount=" . $amount . "&extraData=" . $extraData . "&message=" . $message . "&orderId=" . $orderId . "&orderInfo=" . $orderInfo .
             "&orderType=" . $orderType . "&partnerCode=" . $partnerCode . "&payType=" . $payType . "&requestId=" . $requestId . "&responseTime=" . $responseTime .
             "&resultCode=" . $resultCode . "&transId=" . $transId;
@@ -156,9 +155,8 @@ class MoMoPaymentService
             $payType = $request->payType;
             $responseTime = $request->responseTime;
             $extraData = $request->extraData;
-            $m2signature = $request->signature; //MoMo signature
+            $m2signature = $request->signature;
 
-            //Checksum
             $rawHash = "accessKey=" . $accessKey . "&amount=" . $amount . "&extraData=" . $extraData . "&message=" . $message . "&orderId=" . $orderId . "&orderInfo=" . $orderInfo .
                 "&orderType=" . $orderType . "&partnerCode=" . $partnerCode . "&payType=" . $payType . "&requestId=" . $requestId . "&responseTime=" . $responseTime .
                 "&resultCode=" . $resultCode . "&transId=" . $transId;
