@@ -5,7 +5,7 @@
     "provider": "Binjuhor\\MoMo\\Providers\\MoMoServiceProvider",
     "author": "Binjuhor from XDevLabs Team",
     "url": "https://binjuhor.com",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "description": "MoMo payment gateway integration",
     "require": ["payment"]
 }
