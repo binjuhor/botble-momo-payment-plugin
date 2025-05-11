@@ -44,7 +44,7 @@ class MoMoPaymentService
 
         $data = array('partnerCode' => $partnerCode,
             'partnerName' => config('app.name'),
-            "storeId" => "MomoTestStore",
+            "storeId" => 'MainStoreId', //@todo: Need to be add option to get storeId from setting
             'requestId' => $requestId,
             'amount' => $amount,
             'orderId' => $orderId,
